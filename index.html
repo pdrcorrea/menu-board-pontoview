@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PontoView Menu Board</title>
+  <style>
+    :root {
+      --header: #173463;
+      --accent: #00b9f2;
+      --price: #173463;
+      --ink: #162237;
+      --muted: #68778c;
+      --background: #f4f7fb;
+      --surface: #ffffff;
+      --line: #e2eaf2;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0 0, color-mix(in srgb, var(--accent) 14%, transparent), transparent 32%),
+        var(--background);
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    main {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: clamp(16px, 2vh, 32px);
+      padding: clamp(20px, 3vw, 52px);
+    }
+
+    header, footer { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+    .brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+    .mark {
+      width: clamp(46px, 4vw, 72px); height: clamp(46px, 4vw, 72px);
+      display: grid; place-items: center; flex: none;
+      border-radius: 17px; background: var(--header); color: #fff;
+      box-shadow: 0 10px 24px color-mix(in srgb, var(--header) 18%, transparent);
+      font-size: clamp(19px, 1.8vw, 31px); font-weight: 800;
+    }
+    .mark img { display: none; width: 76%; height: 76%; object-fit: contain; }
+    .mark.has-image img { display: block; }
+    .mark.has-image .mark-text { display: none; }
+    .title { font-size: clamp(28px, 3.1vw, 54px); font-weight: 800; letter-spacing: -.06em; line-height: .92; }
+    .subtitle { margin-top: 7px; color: var(--muted); font-size: clamp(12px, 1.2vw, 19px); font-weight: 600; }
+    .subtitle:empty { display: none; }
+
+    #stage { position: relative; min-height: 0; overflow: hidden; }
+    .page {
+      position: absolute; inset: 0;
+      display: grid; grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
+      gap: clamp(14px, 1.5vw, 28px);
+      opacity: 0; transform: translateY(12px); pointer-events: none;
+      transition: opacity .45s ease, transform .45s cubic-bezier(.2,.75,.3,1);
+    }
+    .page.active { opacity: 1; transform: none; }
+    .category {
+      min-height: 0; overflow: hidden;
+      border: 1px solid color-mix(in srgb, var(--header) 13%, #fff);
+      border-radius: 18px; background: var(--surface);
+      box-shadow: 0 12px 30px color-mix(in srgb, var(--header) 8%, transparent);
+    }
+    .category-title {
+      display: flex; align-items: center; gap: 11px;
+      padding: clamp(15px, 1.5vw, 24px) clamp(17px, 1.7vw, 28px);
+      background: var(--header); color: #fff;
+      font-size: clamp(17px, 1.5vw, 25px); font-weight: 800;
+    }
+    .category-title::before { content: ""; width: 7px; height: 1.1em; flex: none; border-radius: 9px; background: var(--accent); }
+    .items { padding: clamp(8px, 1vw, 17px) clamp(17px, 1.7vw, 28px); }
+    .product {
+      display: grid; grid-template-columns: 1fr auto; align-items: center;
+      gap: 4px 14px; padding: clamp(11px, 1.15vw, 19px) 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .product:last-child { border: 0; }
+    .product.featured { margin: 5px -8px; padding: 12px 8px; border: 0; border-radius: 12px; background: color-mix(in srgb, var(--accent) 11%, #fff); }
+    .product-name { font-size: clamp(16px, 1.35vw, 22px); font-weight: 800; letter-spacing: -.025em; line-height: 1.1; }
+    .description { color: var(--muted); font-size: clamp(11px, .92vw, 15px); }
+    .price { grid-area: 1 / 2 / span 2; color: var(--price); font-size: clamp(19px, 1.65vw, 29px); font-weight: 800; white-space: nowrap; }
+    .tag { display: inline-block; margin-bottom: 5px; color: color-mix(in srgb, var(--header) 78%, #000); font-size: 9px; font-weight: 800; letter-spacing: .08em; }
+    .message { height: 100%; display: grid; place-items: center; padding: 30px; border-radius: 18px; background: #fff; font-weight: 700; text-align: center; }
+
+    footer { color: var(--muted); font-size: clamp(9px, .8vw, 13px); font-weight: 600; }
+    #footerMessage:empty { display: none; }
+    .dots { display: flex; align-items: center; gap: 7px; }
+    .dots i { width: 6px; height: 6px; border-radius: 20px; background: #c6d4e1; transition: width .3s ease, background .3s ease; }
+    .dots i.active { width: 20px; background: var(--accent); }
+    .pontoview { color: #173463; font-weight: 800; letter-spacing: .03em; }
+
+    @media (orientation: portrait) {
+      main { padding: 20px; gap: 17px; }
+      .category { border-radius: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="brand">
+        <div class="mark" id="brandMark">
+          <span class="mark-text" id="brandText">PV</span>
+          <img id="brandImage" alt="">
+        </div>
+        <div>
+          <div class="title" id="businessName">Seu estabelecimento</div>
+          <div class="subtitle" id="subtitle">Cardápio &amp; preços</div>
+        </div>
+      </div>
+    </header>
+
+    <section id="stage"><div class="message">Carregando cardápio…</div></section>
+
+    <footer>
+      <span id="footerMessage">Preços em Reais (R$). Venda de bebidas alcoólicas proibida a menores de 18 anos.</span>
+      <span class="dots" id="dots"></span>
+      <span id="pageCount"></span>
+      <span class="pontoview">PontoView</span>
+    </footer>
+  </main>
+
+  <script>
+    const CONFIG = {
+      spreadsheetUrl: "https://docs.google.com/spreadsheets/d/13mCv4IJSZKkWJXvoBHqheZzOG5VrYou5ZylnxpUpRrI/edit?usp=sharing"
+    };
+
+    const DEFAULTS = {
+      businessName: "Seu estabelecimento",
+      subtitle: "Cardápio & preços",
+      initial: "PV",
+      footer: "Preços em Reais (R$). Venda de bebidas alcoólicas proibida a menores de 18 anos.",
+      highlightColor: "#173463",
+      accentColor: "#00B9F2",
+      headerColor: "#173463",
+      backgroundColor: "#F4F7FB",
+      pageSeconds: 9,
+      refreshSeconds: 20,
+      itemsPerCategory: 7,
+      landscapeCards: 3,
+      portraitCards: 1
+    };
+
+    const state = { controls: {}, pages: [], currentPage: 0, rotationTimer: null, refreshTimer: null };
+    const byId = id => document.getElementById(id);
+    const normalize = value => String(value ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLowerCase();
+    const escapeHtml = value => { const node = document.createElement("div"); node.textContent = value ?? ""; return node.innerHTML; };
+
+    function getSheetIdentity() {
+      const id = (CONFIG.spreadsheetUrl.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/) || [])[1];
+      const gid = (CONFIG.spreadsheetUrl.match(/[?#&]gid=(\d+)/) || [])[1] || "0";
+      if (!id) throw new Error("Cole o link normal da planilha na configuração do arquivo.");
+      return { id, gid };
+    }
+
+    function querySheet(sheetName = "") {
+      const { id, gid } = getSheetIdentity();
+      return new Promise((resolve, reject) => {
+        const callback = `pontoView_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+        const selector = sheetName ? `sheet=${encodeURIComponent(sheetName)}` : `gid=${gid}`;
+        const tqx = encodeURIComponent(`out:json;responseHandler:${callback}`);
+        const url = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?${selector}&headers=1&tqx=${tqx}&cache=${Date.now()}`;
+        const script = document.createElement("script");
+        const timeout = setTimeout(() => finish(new Error("A planilha demorou para responder.")), 12000);
+
+        function finish(error, response) {
+          clearTimeout(timeout);
+          script.remove();
+          delete window[callback];
+          error ? reject(error) : resolve(response);
+        }
+
+        window[callback] = response => {
+          if (response.status === "error") finish(new Error(`Não foi possível ler a aba ${sheetName || "Produtos"}.`));
+          else finish(null, response);
+        };
+        script.onerror = () => finish(new Error("Não foi possível ler a planilha. Confira o compartilhamento."));
+        script.src = url;
+        document.head.appendChild(script);
+      });
+    }
+
+    function tableToObjects(table) {
+      const headers = table.cols.map(column => normalize(column.label));
+      return table.rows.map(row => Object.fromEntries(headers.map((header, index) => [header, row.c[index]?.v ?? ""])));
+    }
+
+    function controlsFromTable(table) {
+      const controls = {};
+      for (const row of table.rows) {
+        const key = normalize(row.c?.[0]?.v);
+        if (key) controls[key] = row.c?.[1]?.v ?? "";
+      }
+      return controls;
+    }
+
+    function controlText(key, fallback) {
+      return Object.prototype.hasOwnProperty.call(state.controls, key) ? String(state.controls[key] ?? "").trim() : fallback;
+    }
+
+    function controlNumber(key, fallback) {
+      const value = Number(String(state.controls[key] ?? "").replace(",", "."));
+      return Number.isFinite(value) && value > 0 ? value : fallback;
+    }
+
+    function controlColor(key, fallback) {
+      const value = String(state.controls[key] ?? "").trim();
+      return /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
+    }
+
+    function imageUrl(value) {
+      const url = String(value ?? "").trim();
+      if (!url) return "";
+      const driveId = (url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/[?&]id=([a-zA-Z0-9_-]+)/) || [])[1];
+      return driveId ? `https://drive.google.com/thumbnail?id=${driveId}&sz=w1000` : url;
+    }
+
+    function formatPrice(value) {
+      let number;
+      if (typeof value === "number") number = value;
+      else {
+        const text = String(value ?? "").replace("R$", "").trim();
+        number = Number(text.includes(",") ? text.replace(/\./g, "").replace(",", ".") : text);
+      }
+      return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number.isFinite(number) ? number : 0);
+    }
+
+    async function loadData() {
+      const [productsResponse, controlsResponse] = await Promise.all([
+        querySheet(),
+        querySheet("Painel de Controle")
+      ]);
+      state.controls = controlsFromTable(controlsResponse.table);
+      return tableToObjects(productsResponse.table).filter(product => String(product.exibir).trim().toUpperCase() === "SIM");
+    }
+
+    function applyControls() {
+      const root = document.documentElement;
+      root.style.setProperty("--price", controlColor("cor de destaque", DEFAULTS.highlightColor));
+      root.style.setProperty("--accent", controlColor("cor de acento", DEFAULTS.accentColor));
+      root.style.setProperty("--header", controlColor("cor do cabecalho", DEFAULTS.headerColor));
+      root.style.setProperty("--background", controlColor("cor de fundo", DEFAULTS.backgroundColor));
+      byId("businessName").textContent = controlText("nome do estabelecimento", DEFAULTS.businessName);
+      byId("subtitle").textContent = controlText("subtitulo", DEFAULTS.subtitle);
+      byId("brandText").textContent = controlText("inicial", DEFAULTS.initial).slice(0, 2).toUpperCase();
+      byId("footerMessage").textContent = controlText("mensagem no rodape", DEFAULTS.footer);
+
+      const badge = byId("brandMark");
+      const badgeImage = byId("brandImage");
+      const configuredImage = imageUrl(controlText("imagem do badge", ""));
+      badge.classList.remove("has-image");
+      badgeImage.removeAttribute("src");
+      if (configuredImage) {
+        badgeImage.onload = () => badge.classList.add("has-image");
+        badgeImage.onerror = () => badge.classList.remove("has-image");
+        badgeImage.src = configuredImage;
+      }
+    }
+
+    function buildPages(products) {
+      const landscape = innerWidth >= innerHeight;
+      const cardsPerPage = Math.floor(controlNumber(landscape ? "cards por pagina horizontal" : "cards por pagina vertical", landscape ? DEFAULTS.landscapeCards : DEFAULTS.portraitCards));
+      const itemsPerCategory = Math.floor(controlNumber("itens por categoria por pagina", DEFAULTS.itemsPerCategory));
+      const groups = products.reduce((result, product) => {
+        const category = String(product.categoria || "Outros").trim() || "Outros";
+        (result[category] ||= []).push(product);
+        return result;
+      }, {});
+      const cards = [];
+      for (const [category, items] of Object.entries(groups)) {
+        for (let index = 0; index < items.length; index += itemsPerCategory) {
+          cards.push({ category, items: items.slice(index, index + itemsPerCategory) });
+        }
+      }
+      return Array.from({ length: Math.ceil(cards.length / cardsPerPage) }, (_, index) => ({
+        columns: cardsPerPage,
+        cards: cards.slice(index * cardsPerPage, index * cardsPerPage + cardsPerPage)
+      }));
+    }
+
+    function productTemplate(product) {
+      const featured = String(product.destaque).trim().toUpperCase() === "SIM";
+      return `<div class="product ${featured ? "featured" : ""}">
+        <div class="product-name">${featured ? '<span class="tag">DESTAQUE</span><br>' : ""}${escapeHtml(product.produto || "Produto")}</div>
+        <div class="description">${escapeHtml(product.descricao)}</div>
+        <div class="price">${formatPrice(product.preco)}</div>
+      </div>`;
+    }
+
+    function render(products) {
+      applyControls();
+      state.pages = buildPages(products);
+      state.currentPage = 0;
+
+      if (!state.pages.length) {
+        byId("stage").innerHTML = '<div class="message">Nenhum produto disponível no momento.</div>';
+        byId("dots").innerHTML = "";
+        byId("pageCount").textContent = "";
+        return;
+      }
+
+      byId("stage").innerHTML = state.pages.map((page, pageIndex) => `
+        <section class="page ${pageIndex === 0 ? "active" : ""}" style="--columns:${page.columns}">
+          ${page.cards.map(card => `<article class="category">
+            <div class="category-title">${escapeHtml(card.category)}</div>
+            <div class="items">${card.items.map(productTemplate).join("")}</div>
+          </article>`).join("")}
+        </section>`).join("");
+      byId("dots").innerHTML = state.pages.map((_, index) => `<i class="${index === 0 ? "active" : ""}"></i>`).join("");
+      showPage(0);
+      scheduleRotation();
+    }
+
+    function showPage(index) {
+      const elements = [...document.querySelectorAll(".page")];
+      if (!elements.length) return;
+      elements[state.currentPage]?.classList.remove("active");
+      state.currentPage = (index + state.pages.length) % state.pages.length;
+      elements[state.currentPage]?.classList.add("active");
+      [...byId("dots").children].forEach((dot, dotIndex) => dot.classList.toggle("active", dotIndex === state.currentPage));
+      byId("pageCount").textContent = state.pages.length > 1 ? `${state.currentPage + 1} / ${state.pages.length}` : "";
+    }
+
+    function scheduleRotation() {
+      clearInterval(state.rotationTimer);
+      const seconds = controlNumber("tempo por pagina (segundos)", DEFAULTS.pageSeconds);
+      if (state.pages.length > 1) state.rotationTimer = setInterval(() => showPage(state.currentPage + 1), seconds * 1000);
+    }
+
+    function scheduleRefresh() {
+      clearInterval(state.refreshTimer);
+      const seconds = controlNumber("atualizacao dos dados (segundos)", DEFAULTS.refreshSeconds);
+      state.refreshTimer = setInterval(refresh, seconds * 1000);
+    }
+
+    async function refresh() {
+      try {
+        render(await loadData());
+        scheduleRefresh();
+      } catch (error) {
+        console.error(error);
+        byId("stage").innerHTML = `<div class="message">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    let resizeTimer;
+    addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(refresh, 300);
+    });
+
+    refresh();
+  </script>
+</body>
+</html>
