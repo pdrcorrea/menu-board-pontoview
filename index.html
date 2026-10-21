@@ -97,6 +97,46 @@
       main { padding: 20px; gap: 17px; }
       .category { border-radius: 16px; }
     }
+
+    /* Visual de sinalização: legível à distância, inclusive em TVs HD de 32". */
+    main { padding: clamp(16px, 2.2vw, 34px); gap: clamp(10px, 1.7vh, 22px); }
+    .title { font-size: clamp(30px, 3vw, 52px); line-height: 1.05; letter-spacing: -.04em; }
+    .subtitle { font-size: clamp(15px, 1.2vw, 20px); margin-top: 4px; }
+    .mark { width: clamp(48px, 4vw, 70px); height: clamp(48px, 4vw, 70px); }
+    .page { gap: clamp(14px, 1.5vw, 28px); }
+    .category { border-radius: 18px; box-shadow: 0 5px 20px color-mix(in srgb, var(--header) 7%, transparent); display: flex; flex-direction: column; }
+    .category-title { min-height: clamp(60px, 8vh, 86px); padding: 14px clamp(18px, 2vw, 34px); font-size: clamp(23px, 2vw, 35px); line-height: 1.1; }
+    .category-title::before { width: 6px; height: 1.05em; }
+    .items { flex: 1; display: flex; flex-direction: column; justify-content: space-evenly; min-height: 0; padding: 10px clamp(20px, 2vw, 36px); }
+    .product { flex: 1; min-height: 0; grid-template-columns: minmax(0,1fr) auto; column-gap: 18px; row-gap: 5px; padding: 10px 0; align-content: center; }
+    .product-name { font-size: clamp(27px, 2.25vw, 43px); font-weight: 750; line-height: 1.12; overflow-wrap: anywhere; }
+    .description { font-size: clamp(14px, 1.13vw, 20px); line-height: 1.2; }
+    .description:empty { display: none; }
+    .price { font-size: clamp(31px, 2.55vw, 48px); font-weight: 800; line-height: 1.1; letter-spacing: -.04em; }
+    .product.featured { margin: 3px -10px; padding: 10px; }
+    .tag { font-size: clamp(11px, .85vw, 15px); }
+    footer { font-size: clamp(11px, .95vw, 15px); gap: 15px; }
+    .pontoview { white-space: nowrap; }
+    @media (max-width: 1500px) and (orientation: landscape) {
+      .product-name { font-size: clamp(26px, 2.35vw, 35px); }
+      .price { font-size: clamp(30px, 2.8vw, 41px); }
+      .description { font-size: clamp(14px, 1.3vw, 18px); }
+      .category-title { font-size: clamp(24px, 2.2vw, 31px); }
+    }
+    @media (orientation: portrait) {
+      main { padding: clamp(16px, 3vw, 32px); }
+      .product-name { font-size: clamp(25px, 3.4vw, 42px); }
+      .price { font-size: clamp(29px, 3.8vw, 46px); }
+      .category-title { font-size: clamp(25px, 3vw, 36px); }
+      .description { font-size: clamp(15px, 2vw, 21px); }
+    }
+    @media (max-width: 650px) {
+      .product-name { font-size: clamp(19px, 3.8vw, 28px); }
+      .price { font-size: clamp(22px, 4.3vw, 32px); }
+      .items { padding-inline: 15px; }
+      footer .pontoview { display: none; }
+      .category-title { min-height: 56px; }
+    }
   </style>
 </head>
 <body>
@@ -140,7 +180,7 @@
       backgroundColor: "#F4F7FB",
       pageSeconds: 9,
       refreshSeconds: 20,
-      itemsPerCategory: 7,
+      itemsPerCategory: 5,
       landscapeCards: 3,
       portraitCards: 1
     };
@@ -263,8 +303,15 @@
 
     function buildPages(products) {
       const landscape = innerWidth >= innerHeight;
-      const cardsPerPage = Math.floor(controlNumber(landscape ? "cards por pagina horizontal" : "cards por pagina vertical", landscape ? DEFAULTS.landscapeCards : DEFAULTS.portraitCards));
-      const itemsPerCategory = Math.floor(controlNumber("itens por categoria por pagina", DEFAULTS.itemsPerCategory));
+      const requestedCards = Math.floor(controlNumber(landscape ? "cards por pagina horizontal" : "cards por pagina vertical", landscape ? DEFAULTS.landscapeCards : DEFAULTS.portraitCards));
+      // Em televisores HD, duas colunas proporcionam letras muito maiores.
+      const cardsPerPage = Math.max(1, Math.min(requestedCards, landscape ? (innerWidth < 1600 ? 2 : 3) : 1));
+      const requestedItems = Math.floor(controlNumber("itens por categoria por pagina", DEFAULTS.itemsPerCategory));
+      // Limita a quantidade segundo a altura útil, evitando textos cortados.
+      const availableHeight = Math.max(280, byId("stage").clientHeight - 85);
+      const itemHeight = landscape ? (innerHeight <= 800 ? 104 : 116) : 120;
+      const safeItems = Math.max(2, Math.floor(availableHeight / itemHeight));
+      const itemsPerCategory = Math.max(1, Math.min(requestedItems, safeItems, 5));
       const groups = products.reduce((result, product) => {
         const category = String(product.categoria || "Outros").trim() || "Outros";
         (result[category] ||= []).push(product);
