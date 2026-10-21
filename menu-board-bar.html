@@ -148,6 +148,60 @@
       footer .pontoview { display: none; }
       .category-title { min-height: 56px; }
     }
+
+    /* Painel de preços com leitura a distância: tabela, marca e rodapé. */
+    :root { --ink:#f8fbff; --muted:#b9cbe0; --surface:#112943; --line:#365673; }
+    body { background:#071523; color:var(--ink); font-family:Arial,"Segoe UI",sans-serif; }
+    main { height:100dvh; grid-template-rows:auto minmax(0,1fr) auto; padding:0; gap:0; }
+    header { min-height:clamp(78px,12vh,120px); padding:12px clamp(20px,2.5vw,46px); background:var(--header); border-bottom:5px solid var(--accent); }
+    header .title { font-size:clamp(30px,3.45vw,62px); line-height:1.08; letter-spacing:-.025em; color:white; }
+    header .subtitle { font-size:clamp(13px,1.2vw,20px); color:#e0eaf6; }
+    header .mark { display:none; }
+    #stage { margin:clamp(12px,1.7vh,22px) clamp(14px,1.7vw,32px); }
+    .page { display:grid; grid-template-columns:minmax(0,1fr) minmax(190px,23%); gap:clamp(12px,1.5vw,28px); transform:none; }
+    .category { display:flex; flex-direction:column; overflow:hidden; border:2px solid #315270; border-radius:7px; background:#10283e; box-shadow:none; }
+    .category-title { flex:0 0 auto; min-height:clamp(54px,8vh,84px); padding:8px clamp(20px,2vw,36px); font-size:clamp(29px,2.9vw,52px); background:#204f84; color:#fff; letter-spacing:.015em; text-transform:uppercase; }
+    .category-title::before { display:none; }
+    .table-head { display:grid; grid-template-columns:minmax(0,1fr) auto; padding:8px clamp(18px,2vw,36px); background:#0b2035; color:#b6d7fa; font-weight:800; font-size:clamp(14px,1.15vw,20px); text-transform:uppercase; }
+    .items { flex:1; display:flex; flex-direction:column; min-height:0; padding:0; background:#eaf2fa; }
+    .product { flex:1; display:grid; grid-template-columns:minmax(0,1fr) auto; align-content:center; gap:0 clamp(12px,2vw,32px); margin:0; padding:8px clamp(18px,2vw,36px); border:0; border-bottom:2px solid #bad0e2; background:#edf4fb; }
+    .product:nth-child(even) { background:#d8e8f5; }
+    .product:last-child { border:0; }
+    .product.featured { margin:0; padding:8px clamp(18px,2vw,36px); border-radius:0; background:#c5e2f7; }
+    .product-name { color:#10263e; font-size:clamp(25px,2.85vw,49px); font-weight:800; line-height:1.05; letter-spacing:-.025em; overflow-wrap:anywhere; }
+    .description { color:#52677c; font-size:clamp(12px,1.05vw,17px); line-height:1.12; }
+    .price { grid-area:1/2/span 2; color:#0c3d77; font-size:clamp(27px,3.15vw,54px); line-height:1; font-weight:900; font-variant-numeric:tabular-nums; letter-spacing:-.04em; }
+    .tag { color:#0b538c; font-size:11px; margin:0 7px 0 0; }
+    .side-panel { min-width:0; display:flex; flex-direction:column; justify-content:space-between; gap:14px; border:2px solid #315270; border-radius:7px; background:linear-gradient(165deg,#173b60,#0b1d31); padding:clamp(15px,2vw,34px); }
+    .side-brand { display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center; }
+    .side-brand .mark { display:grid; width:clamp(80px,10vw,160px); height:clamp(80px,10vw,160px); border-radius:22px; box-shadow:none; background:#fff; color:#173463; font-size:clamp(30px,4vw,60px); }
+    .side-heading { color:#dbefff; font-weight:900; font-size:clamp(19px,2vw,36px); line-height:1.1; }
+    .side-promo { border-top:2px solid #477397; padding-top:20px; text-align:center; }
+    .side-promo-label { display:block; font-size:clamp(12px,1.1vw,19px); font-weight:900; letter-spacing:.09em; color:#90d9ff; text-transform:uppercase; }
+    .side-promo-name { margin:12px 0; color:#fff; font-size:clamp(20px,2.1vw,37px); font-weight:900; overflow-wrap:anywhere; }
+    .side-promo-price { font-size:clamp(28px,3.1vw,54px); font-weight:900; color:#ffe174; white-space:nowrap; }
+    footer { min-height:clamp(44px,6.5vh,74px); padding:8px clamp(18px,2.3vw,40px); background:var(--header); color:#fff; border-top:3px solid var(--accent); font-size:clamp(13px,1.2vw,20px); }
+    .pontoview { color:#cde6ff; }
+    .dots i { background:#6890b6; }.dots i.active { background:#fff; }
+    .message { background:#132f4e; color:#fff; }
+    @media (orientation:portrait) {
+      .page { grid-template-columns:minmax(0,1fr); }
+      .side-panel { display:none; }
+      header .mark { display:grid; }
+      .product-name { font-size:clamp(24px,3.5vw,45px); }
+      .price { font-size:clamp(26px,3.8vw,50px); }
+    }
+    @media (max-width:900px) and (orientation:landscape) {
+      .page { grid-template-columns:minmax(0,1fr) 21%; }
+      .side-panel { padding:12px; }
+      .side-brand .mark { width:65px;height:65px; }
+      .side-heading { font-size:18px; }
+      .side-promo-name { font-size:18px; }
+      .side-promo-price { font-size:22px; }
+      .product-name { font-size:clamp(20px,2.6vw,29px); }
+      .price { font-size:clamp(22px,2.8vw,32px); }
+    }
+
   </style>
 </head>
 <body>
@@ -185,13 +239,13 @@
       subtitle: "Cardápio & preços",
       initial: "PV",
       footer: "Preços em Reais (R$). Venda de bebidas alcoólicas proibida a menores de 18 anos.",
-      highlightColor: "#173463",
+      highlightColor: "#0C3D77",
       accentColor: "#00B9F2",
-      headerColor: "#173463",
-      backgroundColor: "#F4F7FB",
+      headerColor: "#102A49",
+      backgroundColor: "#071523",
       pageSeconds: 9,
       refreshSeconds: 20,
-      itemsPerCategory: 5,
+      itemsPerCategory: 7,
       landscapeCards: 3,
       portraitCards: 1
     };
@@ -306,7 +360,7 @@
       badge.classList.remove("has-image");
       badgeImage.removeAttribute("src");
       if (configuredImage) {
-        badgeImage.onload = () => badge.classList.add("has-image");
+        badgeImage.onload = () => { badge.classList.add("has-image"); document.querySelectorAll(".side-brand .mark").forEach(mark => { mark.innerHTML = `<img src="${escapeHtml(badgeImage.src)}" alt="" style="display:block;width:80%;height:80%;object-fit:contain">`; }); };
         badgeImage.onerror = () => badge.classList.remove("has-image");
         badgeImage.src = configuredImage;
       }
@@ -314,15 +368,13 @@
 
     function buildPages(products) {
       const landscape = innerWidth >= innerHeight;
-      const requestedCards = Math.floor(controlNumber(landscape ? "cards por pagina horizontal" : "cards por pagina vertical", landscape ? DEFAULTS.landscapeCards : DEFAULTS.portraitCards));
-      // Em televisores HD, duas colunas proporcionam letras muito maiores.
-      const cardsPerPage = Math.max(1, Math.min(requestedCards, landscape ? (innerWidth < 1600 ? 2 : 3) : 1));
+      const cardsPerPage = 1; // Uma tabela por página: máxima leitura a distância.
       const requestedItems = Math.floor(controlNumber("itens por categoria por pagina", DEFAULTS.itemsPerCategory));
       // Limita a quantidade segundo a altura útil, evitando textos cortados.
       const availableHeight = Math.max(280, byId("stage").clientHeight - 85);
-      const itemHeight = landscape ? (innerHeight <= 800 ? 104 : 116) : 120;
+      const itemHeight = landscape ? (innerHeight <= 800 ? 69 : 88) : 110;
       const safeItems = Math.max(2, Math.floor(availableHeight / itemHeight));
-      const itemsPerCategory = Math.max(1, Math.min(requestedItems, safeItems, 5));
+      const itemsPerCategory = Math.max(1, Math.min(requestedItems, safeItems, 8));
       const groups = products.reduce((result, product) => {
         const category = String(product.categoria || "Outros").trim() || "Outros";
         (result[category] ||= []).push(product);
@@ -361,13 +413,20 @@
         return;
       }
 
+      const featuredProduct = products.find(product => String(product.destaque).trim().toUpperCase() === "SIM");
       byId("stage").innerHTML = state.pages.map((page, pageIndex) => `
         <section class="page ${pageIndex === 0 ? "active" : ""}" style="--columns:${page.columns}">
           ${page.cards.map(card => `<article class="category">
             <div class="category-title">${escapeHtml(card.category)}</div>
+            <div class="table-head"><span>Produto</span><span>Preço</span></div>
             <div class="items">${card.items.map(productTemplate).join("")}</div>
           </article>`).join("")}
+          <aside class="side-panel"><div class="side-brand"><div class="mark" id="pageMark${pageIndex}">${escapeHtml(controlText("inicial", DEFAULTS.initial).slice(0,2).toUpperCase())}</div><div class="side-heading">${escapeHtml(controlText("nome do estabelecimento", DEFAULTS.businessName))}</div></div>${featuredProduct ? `<div class="side-promo"><span class="side-promo-label">Destaque do cardápio</span><div class="side-promo-name">${escapeHtml(featuredProduct.produto)}</div><div class="side-promo-price">${formatPrice(featuredProduct.preco)}</div></div>` : `<div class="side-promo"><span class="side-promo-label">Nosso cardápio</span><div class="side-promo-name">Escolha seu favorito</div></div>`}</aside>
         </section>`).join("");
+      const logo = byId("brandImage");
+      if (logo.src && byId("brandMark").classList.contains("has-image")) {
+        document.querySelectorAll(".side-brand .mark").forEach(mark => { mark.innerHTML = `<img src="${escapeHtml(logo.src)}" alt="" style="display:block;width:80%;height:80%;object-fit:contain">`; });
+      }
       byId("dots").innerHTML = state.pages.map((_, index) => `<i class="${index === 0 ? "active" : ""}"></i>`).join("");
       showPage(0);
       scheduleRotation();
