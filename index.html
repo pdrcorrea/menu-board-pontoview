@@ -202,6 +202,17 @@
     @media (prefers-reduced-motion:reduce) {
       .page { transition:opacity .2s linear; transform:none; filter:none; }
     }
+
+    /* Horizontal: a marca já aparece na lateral; priorizar a tabela. */
+    @media (orientation:landscape) {
+      main { grid-template-rows:minmax(0,1fr) auto; }
+      main > header { display:none; }
+      #stage { min-height:0; }
+    }
+    @media (orientation:portrait) {
+      main { grid-template-rows:auto minmax(0,1fr) auto; }
+      main > header { display:flex; }
+    }
   </style>
 </head>
 <body>
@@ -371,10 +382,11 @@
       const cardsPerPage = 1; // Uma tabela por página: máxima leitura a distância.
       const requestedItems = Math.floor(controlNumber("itens por categoria por pagina", DEFAULTS.itemsPerCategory));
       // Limita a quantidade segundo a altura útil, evitando textos cortados.
-      const availableHeight = Math.max(280, byId("stage").clientHeight - 85);
-      const itemHeight = landscape ? (innerHeight <= 800 ? 69 : 88) : 110;
+      const availableHeight = Math.max(240, byId("stage").clientHeight - (landscape ? 125 : 100));
+      const itemHeight = landscape ? (innerHeight <= 800 ? 79 : 92) : 110;
       const safeItems = Math.max(2, Math.floor(availableHeight / itemHeight));
-      const itemsPerCategory = Math.max(1, Math.min(requestedItems, safeItems, 8));
+      // Aproveita a altura liberada: até duas linhas extras na horizontal.
+      const itemsPerCategory = Math.max(1, Math.min(requestedItems + (landscape ? 2 : 0), safeItems, 10));
       const groups = products.reduce((result, product) => {
         const category = String(product.categoria || "Outros").trim() || "Outros";
         (result[category] ||= []).push(product);
